@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import searchclient.Memory;
 import searchclient.Strategy.*;
@@ -19,12 +20,22 @@ public class SearchClient {
 			System.err.println("Error, client does not support colors.");
 			System.exit(1);
 		}
-
-		int row = 0;
+        ArrayList<String> table = new ArrayList<>();
+        int maxCol = 0;
+        int rowNumber = 0;
+        while (!line.equals("")) {
+            table.add(line);
+            if(maxCol < line.length()) {maxCol = line.length(); }
+            rowNumber++;
+            line = serverMessages.readLine();
+        }
+        Node.MAX_ROW = rowNumber;
+        Node.MAX_COL = maxCol;
 		boolean agentFound = false;
 		this.initialState = new Node(null);
 
-		while (!line.equals("")) {
+        for (int row = 0; row < rowNumber; row++) {
+            line = table.get(row);
 			for (int col = 0; col < line.length(); col++) {
 				char chr = line.charAt(col);
 
@@ -49,8 +60,6 @@ public class SearchClient {
 					System.exit(1);
 				}
 			}
-			line = serverMessages.readLine();
-			row++;
 		}
 	}
 
