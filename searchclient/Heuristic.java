@@ -2,15 +2,14 @@ package searchclient;
 
 import java.util.Comparator;
 
-import searchclient.NotImplementedException;
-
 public abstract class Heuristic implements Comparator<Node> {
 	public Heuristic(Node initialState) {
 		// Here's a chance to pre-process the static parts of the level.
 	}
 
 	public int h(Node n) {
-		throw new NotImplementedException();
+		// TODO: heuristic function
+		return 100 - n.agentCol; // priority left... Just for testing.
 	}
 
 	public abstract int f(Node n);

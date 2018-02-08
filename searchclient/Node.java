@@ -16,6 +16,7 @@ public class Node {
 
 	public int agentRow;
 	public int agentCol;
+	public int h;
 
 	// Arrays are indexed from the top-left of the level, with first index being row and second being column.
 	// Row 0: (0,0) (0,1) (0,2) (0,3) ...
@@ -178,36 +179,31 @@ public class Node {
 			return false;
 		if (!Arrays.deepEquals(this.boxes, other.boxes))
 			return false;
-		if (!Arrays.deepEquals(this.goals, other.goals))
-			return false;
-		if (!Arrays.deepEquals(this.walls, other.walls))
-			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder();
-		for (int row = 0; row < MAX_ROW; row++) {
-			if (!this.walls[row][0]) {
-				break;
-			}
-			for (int col = 0; col < MAX_COL; col++) {
-				if (this.boxes[row][col] > 0) {
-					s.append(this.boxes[row][col]);
-				} else if (this.goals[row][col] > 0) {
-					s.append(this.goals[row][col]);
-				} else if (this.walls[row][col]) {
-					s.append("+");
-				} else if (row == this.agentRow && col == this.agentCol) {
-					s.append("0");
-				} else {
-					s.append(" ");
-				}
-			}
-			s.append("\n");
-		}
-		return s.toString();
-	}
-
+        StringBuilder s = new StringBuilder();
+        for (int row = 0; row < MAX_ROW; row++) {
+            if (!this.walls[row][0]) {
+                break;
+            }
+            for (int col = 0; col < MAX_COL; col++) {
+                if (this.boxes[row][col] > 0) {
+                    s.append(this.boxes[row][col]);
+                } else if (this.goals[row][col] > 0) {
+                    s.append(this.goals[row][col]);
+                } else if (this.walls[row][col]) {
+                    s.append("+");
+                } else if (row == this.agentRow && col == this.agentCol) {
+                    s.append("0");
+                } else {
+                    s.append(" ");
+                }
+            }
+            s.append("\n");
+        }
+        return s.toString();
+    }
 }

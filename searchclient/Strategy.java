@@ -1,11 +1,6 @@
 package searchclient;
 
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Stack;
-import searchclient.Memory;
-import searchclient.NotImplementedException;
-import java.lang.instrument.Instrumentation;
+import java.util.*;
 
 public abstract class Strategy {
 	private HashSet<Node> explored;
@@ -139,42 +134,42 @@ public abstract class Strategy {
 
 	// Ex 3: Best-first Search uses a priority queue (Java contains no implementation of a Heap data structure)
 	public static class StrategyBestFirst extends Strategy {
+        public Comparator<Node> hComparator = Comparator.comparingInt(n -> n.h);
 		private Heuristic heuristic;
+		private PriorityQueue<Node> frontier;
+		private HashSet<Node> frontierSet;
 
 		public StrategyBestFirst(Heuristic h) {
 			super();
 			this.heuristic = h;
-			throw new NotImplementedException();
+			frontier = new PriorityQueue<Node>(hComparator);
+			frontierSet = new HashSet<Node>();
 		}
 
 		@Override
 		public Node getAndRemoveLeaf() {
-			throw new NotImplementedException();
+            Node n = frontier.remove();
+			frontierSet.remove(n);
+			return n;
 		}
 
 		@Override
 		public void addToFrontier(Node n) {
-			throw new NotImplementedException();
+		    n.h = heuristic.h(n);
+            frontier.add(n);
+            frontierSet.add(n);
 		}
 
 		@Override
-		public int countFrontier() {
-			throw new NotImplementedException();
-		}
+		public int countFrontier() { return frontier.size(); }
 
 		@Override
-		public boolean frontierIsEmpty() {
-			throw new NotImplementedException();
-		}
+		public boolean frontierIsEmpty() { return frontier.isEmpty(); }
 
 		@Override
-		public boolean inFrontier(Node n) {
-			throw new NotImplementedException();
-		}
+		public boolean inFrontier(Node n) { return frontierSet.contains(n); }
 
 		@Override
-		public String toString() {
-			return "Best-first Search using " + this.heuristic.toString();
-		}
+		public String toString() { return "Best-first Search using " + this.heuristic.toString(); }
 	}
 }
