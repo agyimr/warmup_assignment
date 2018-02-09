@@ -33,13 +33,16 @@ public abstract class Heuristic implements Comparator<Node> {
 		for (int i = 0; i < n.boxes.length; i++) {        // i: row
 			for (int j = 0; j < n.boxes[i].length; j++) { // j: column
 				if (SearchClient.isBox(n.boxes[i][j])) {
-					char currentBoxGoal = Character.toLowerCase(n.boxes[i][j]);
-					for (GoalDistanceMatrix goalDistance : goalDistances) {
-						if (goalDistance.goal == currentBoxGoal) {
-							result += goalDistance.distanceMatrix[i][j];
-							if (closestToGoal < goalDistance.distanceMatrix[i][j]) {
-								closestToGoal = goalDistance.distanceMatrix[i][j];
-								closestToGoalBoxDistance = (Math.abs(n.agentCol - j) + Math.abs(n.agentRow - i));
+					if(Character.toUpperCase(Node.goals[i][j]) != n.boxes[i][j]) {
+						char currentBoxGoal = Character.toLowerCase(n.boxes[i][j]);
+						for (GoalDistanceMatrix goalDistance : goalDistances) {
+							if (goalDistance.goal == currentBoxGoal) {
+								result += goalDistance.distanceMatrix[i][j] * 10;
+								if (closestToGoal > goalDistance.distanceMatrix[i][j]) {
+									closestToGoal = goalDistance.distanceMatrix[i][j];
+									closestToGoalBoxDistance = (Math.abs(n.agentCol - j) + Math.abs(n.agentRow - i));
+
+								}
 							}
 						}
 					}
@@ -107,7 +110,7 @@ public abstract class Heuristic implements Comparator<Node> {
 
 	@Override
 	public int compare(Node n1, Node n2) {
-		return this.f(n2) - this.f(n1);
+		return this.f(n1) - this.f(n2);
 	}
 
 	public static class AStar extends Heuristic {
