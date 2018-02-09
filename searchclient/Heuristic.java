@@ -80,7 +80,8 @@ public abstract class Heuristic implements Comparator<Node> {
         int totalHeuristic = 0;
         for(int row = 0; row < Node.MAX_ROW; ++row) {
             for (int column = 0; column < Node.MAX_COL; ++column) {
-                if(n.boxes[row][column] > 0) {
+//                if((Character.toLowerCase(n.boxes[row][column]) != Node.goals[row][column]) && (n.boxes[row][column] > 0)) Why does that crash?
+                if((n.boxes[row][column] > 0)) {
                     int []currentHeuristic = getHeuristicDistance(row, column, n, agentDistanceMap[n.agentRow][n.agentCol]); //selecting current Agent position
                     if(currentHeuristic[1] < shortestAgentBoxGoalDistance) shortestAgentBoxGoalDistance = currentHeuristic[1];
                     totalHeuristic +=  currentHeuristic[0];
