@@ -19,30 +19,34 @@ public abstract class Heuristic implements Comparator<Node> {
         List<Point> boxPosition = new ArrayList<>();
         List<Point> goalPosition = new ArrayList<>();
         for(int row = 0; row < Node.MAX_ROW; ++row) {
-			for (int column = 0;column < Node.MAX_COL; ++column) {
-				if(n.boxes[row][column] != 0) {
-                    boxPosition.add(new Point(row, column));
+			for (int column = 0; column < Node.MAX_COL; ++column) {
+				if(n.boxes[row][column] > 0) {
+                    boxPosition.add(new Point(column, row));
                 }
-                else if(Node.goals[row][column] != 0) {
-                    goalPosition.add(new Point(row, column));
+                else if(Node.goals[row][column] > 0) {
+                    goalPosition.add(new Point(column, row));
                 }
 			}
 		}
-		int manhattanDistance = Integer.MAX_VALUE;
-		for ( Point currentBox : boxPosition) {
-            for (Point currentGoal : goalPosition) {
-                int currentManhattanDistance = abs(currentBox.x - currentGoal.x) + abs(currentBox.y - currentGoal.y);
-                if (currentManhattanDistance < manhattanDistance) manhattanDistance = currentManhattanDistance;
+		int boxToGoalManhattanDistance = Node.MAX_ROW + Node.MAX_COL;
+		for ( Point currentGoal: goalPosition) {
+            for (Point currentBox : boxPosition) {
+                if(Character.toLowerCase(n.boxes[currentBox.y][currentBox.x]) == Node.goals[currentGoal.y][currentGoal.x]) {
+                    int currentManhattanDistance = abs(currentBox.x - currentGoal.x) + abs(currentBox.y - currentGoal.y);
+                    if (currentManhattanDistance < boxToGoalManhattanDistance) boxToGoalManhattanDistance = currentManhattanDistance;
+
+                }
             }
         }
-		return manhattanDistance;
+        //System.err.println("Manhattan distance:" + boxToGoalManhattanDistance);
+        return boxToGoalManhattanDistance;
 	}
 
 	public abstract int f(Node n);
 
 	@Override
 	public int compare(Node n1, Node n2) {
-		return this.f(n1) - this.f(n2);
+		return this.f(n2) - this.f(n1);
 	}
 
 	public static class AStar extends Heuristic {

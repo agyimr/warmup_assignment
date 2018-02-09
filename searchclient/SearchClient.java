@@ -29,10 +29,9 @@ public class SearchClient {
             rowNumber++;
             line = serverMessages.readLine();
         }
-        Node.MAX_ROW = rowNumber;
-        Node.MAX_COL = maxCol;
+
+        this.initialState = new Node(null, rowNumber, maxCol);
 		boolean agentFound = false;
-		this.initialState = new Node(null);
 
         for (int row = 0; row < rowNumber; row++) {
             line = table.get(row);

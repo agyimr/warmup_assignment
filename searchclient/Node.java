@@ -11,8 +11,8 @@ import searchclient.Command.Type;
 public class Node {
 	private static final Random RND = new Random(3);
 
-	public static int MAX_ROW = 70;
-	public static int MAX_COL = 70;
+	public static int MAX_ROW = 0;
+	public static int MAX_COL = 0;
 
 	public int agentRow;
 	public int agentCol;
@@ -28,9 +28,9 @@ public class Node {
 	// this.walls[row][col] is true if there's a wall at (row, col)
 	//
 
-	public static boolean[][] walls = new boolean[MAX_ROW][MAX_COL];
-	public char[][] boxes = new char[MAX_ROW][MAX_COL];
-	public static char[][] goals = new char[MAX_ROW][MAX_COL];
+	public static boolean[][] walls;
+	public char[][] boxes;
+	public static char[][] goals;
 
 	public Node parent;
 	public Command action;
@@ -40,6 +40,7 @@ public class Node {
 	private int _hash = 0;
 
 	public Node(Node parent) {
+        boxes = new char[MAX_ROW][MAX_COL];
 		this.parent = parent;
 		if (parent == null) {
 			this.g = 0;
@@ -47,6 +48,20 @@ public class Node {
 			this.g = parent.g() + 1;
 		}
 	}
+
+    public Node(Node parent, int maxRow, int maxCol) {
+	    MAX_ROW = maxRow;
+	    MAX_COL = maxCol;
+        walls = new boolean[MAX_ROW][MAX_COL];
+        boxes = new char[MAX_ROW][MAX_COL];
+        goals = new char[MAX_ROW][MAX_COL];
+        this.parent = parent;
+        if (parent == null) {
+            this.g = 0;
+        } else {
+            this.g = parent.g() + 1;
+        }
+    }
 
 	public int g() {
 		return this.g;
@@ -124,7 +139,7 @@ public class Node {
 	}
 
 	private boolean cellIsFree(int row, int col) {
-		return !this.walls[row][col] && this.boxes[row][col] == 0;
+		return !Node.walls[row][col] && this.boxes[row][col] == 0;
 	}
 
 	private boolean boxAt(int row, int col) {
@@ -134,9 +149,7 @@ public class Node {
 	private Node ChildNode() {
 		Node copy = new Node(this);
 		for (int row = 0; row < MAX_ROW; row++) {
-			System.arraycopy(this.walls[row], 0, copy.walls[row], 0, MAX_COL);
 			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, MAX_COL);
-			System.arraycopy(this.goals[row], 0, copy.goals[row], 0, MAX_COL);
 		}
 		return copy;
 	}
@@ -159,8 +172,8 @@ public class Node {
 			result = prime * result + this.agentCol;
 			result = prime * result + this.agentRow;
 			result = prime * result + Arrays.deepHashCode(this.boxes);
-			result = prime * result + Arrays.deepHashCode(this.goals);
-			result = prime * result + Arrays.deepHashCode(this.walls);
+			result = prime * result + Arrays.deepHashCode(Node.goals);
+			result = prime * result + Arrays.deepHashCode(Node.walls);
 			this._hash = result;
 		}
 		return this._hash;
@@ -186,15 +199,15 @@ public class Node {
 	public String toString() {
         StringBuilder s = new StringBuilder();
         for (int row = 0; row < MAX_ROW; row++) {
-            if (!this.walls[row][0]) {
+            if (!Node.walls[row][0]) {
                 break;
             }
             for (int col = 0; col < MAX_COL; col++) {
                 if (this.boxes[row][col] > 0) {
                     s.append(this.boxes[row][col]);
-                } else if (this.goals[row][col] > 0) {
-                    s.append(this.goals[row][col]);
-                } else if (this.walls[row][col]) {
+                } else if (Node.goals[row][col] > 0) {
+                    s.append(Node.goals[row][col]);
+                } else if (Node.walls[row][col]) {
                     s.append("+");
                 } else if (row == this.agentRow && col == this.agentCol) {
                     s.append("0");
