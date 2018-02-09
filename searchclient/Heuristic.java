@@ -1,6 +1,14 @@
 package searchclient;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+
+import java.awt.Point;
+import java.util.List;
+
+import searchclient.NotImplementedException;
+
+import static java.lang.Math.abs;
 
 public abstract class Heuristic implements Comparator<Node> {
 	public Heuristic(Node initialState) {
@@ -8,8 +16,26 @@ public abstract class Heuristic implements Comparator<Node> {
 	}
 
 	public int h(Node n) {
-		// TODO: heuristic function
-		return 100 - n.agentCol; // priority left... Just for testing.
+        List<Point> boxPosition = new ArrayList<>();
+        List<Point> goalPosition = new ArrayList<>();
+        for(int row = 0; row < Node.MAX_ROW; ++row) {
+			for (int column = 0;column < Node.MAX_COL; ++column) {
+				if(n.boxes[row][column] != 0) {
+                    boxPosition.add(new Point(row, column));
+                }
+                else if(Node.goals[row][column] != 0) {
+                    goalPosition.add(new Point(row, column));
+                }
+			}
+		}
+		int manhattanDistance = Integer.MAX_VALUE;
+		for ( Point currentBox : boxPosition) {
+            for (Point currentGoal : goalPosition) {
+                int currentManhattanDistance = abs(currentBox.x - currentGoal.x) + abs(currentBox.y - currentGoal.y);
+                if (currentManhattanDistance < manhattanDistance) manhattanDistance = currentManhattanDistance;
+            }
+        }
+		return manhattanDistance;
 	}
 
 	public abstract int f(Node n);
