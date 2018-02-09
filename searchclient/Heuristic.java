@@ -62,6 +62,7 @@ public abstract class Heuristic implements Comparator<Node> {
         return  possibleNeighbour;
     }
     private void findNeighbour(int x, int y, int board[][], ArrayList<Point> possibleNeighbour) {
+        if(x >= Node.MAX_COL || y >= Node.MAX_ROW) return;
         if( !Node.walls[y][x] && (board[y][x] == -1)) possibleNeighbour.add(new Point( x, y ));
     }
 
