@@ -1,6 +1,7 @@
 package searchclient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 import java.awt.Point;
@@ -11,38 +12,98 @@ import searchclient.NotImplementedException;
 import static java.lang.Math.abs;
 
 public abstract class Heuristic implements Comparator<Node> {
+	private ArrayList<GoalDistanceMatrix> goalDistances;
+
 	public Heuristic(Node initialState) {
 		// Here's a chance to pre-process the static parts of the level.
+		goalDistances = countDistancesFromGoals(initialState);
+		for (int[] row : goalDistances.get(0).distanceMatrix) {
+			for (int val : row) {
+				System.err.print(val);
+			}
+			System.err.print("\n");
+		}
 	}
 
 	public int h(Node n) {
-        List<Point> boxPosition = new ArrayList<>();
-        List<Point> goalPosition = new ArrayList<>();
-        for(int row = 0; row < Node.MAX_ROW; ++row) {
-			for (int column = 0; column < Node.MAX_COL; ++column) {
-				if(n.boxes[row][column] > 0) {
-                    boxPosition.add(new Point(column, row));
-                }
-                else if(Node.goals[row][column] > 0) {
-                    goalPosition.add(new Point(column, row));
-                }
+		int result = 0;
+		// Basically the sum of all of the shortest path distances for every box to a goal
+		int closestToGoal = Integer.MAX_VALUE;
+		int closestToGoalBoxDistance = 0;
+		for (int i = 0; i < n.boxes.length; i++) {        // i: row
+			for (int j = 0; j < n.boxes[i].length; j++) { // j: column
+				if (SearchClient.isBox(n.boxes[i][j])) {
+					char currentBoxGoal = Character.toLowerCase(n.boxes[i][j]);
+					for (GoalDistanceMatrix goalDistance : goalDistances) {
+						if (goalDistance.goal == currentBoxGoal) {
+							result += goalDistance.distanceMatrix[i][j];
+							if (closestToGoal < goalDistance.distanceMatrix[i][j]) {
+								closestToGoal = goalDistance.distanceMatrix[i][j];
+								closestToGoalBoxDistance = (Math.abs(n.agentCol - j) + Math.abs(n.agentRow - i));
+							}
+						}
+					}
+				}
 			}
 		}
-		int boxToGoalManhattanDistance = Node.MAX_ROW + Node.MAX_COL;
-		for ( Point currentGoal: goalPosition) {
-            for (Point currentBox : boxPosition) {
-                if(Character.toLowerCase(n.boxes[currentBox.y][currentBox.x]) == Node.goals[currentGoal.y][currentGoal.x]) {
-                    int currentManhattanDistance = abs(currentBox.x - currentGoal.x) + abs(currentBox.y - currentGoal.y);
-                    if (currentManhattanDistance < boxToGoalManhattanDistance) boxToGoalManhattanDistance = currentManhattanDistance;
-
-                }
-            }
-        }
-        //System.err.println("Manhattan distance:" + boxToGoalManhattanDistance);
-        return boxToGoalManhattanDistance;
+		result += closestToGoalBoxDistance;
+		return result;
 	}
 
 	public abstract int f(Node n);
+
+	private ArrayList<GoalDistanceMatrix> countDistancesFromGoals(Node n) {
+		// getting positions of goals
+		ArrayList<Coordinate> goals = new ArrayList<>();
+		for (int i = 0; i < Node.goals.length; i++) {        // i: row
+			for (int j = 0; j < Node.goals[i].length; j++) { // j: column
+				if (SearchClient.isGoal(Node.goals[i][j])) {
+					goals.add(new Coordinate(j, i, Node.goals[i][j]));
+				}
+			}
+		}
+
+		// creating distance matrix for all goals
+		ArrayList<GoalDistanceMatrix> goalDistances = new ArrayList<>();
+		for (Coordinate goal : goals) {
+			int[][] distances = new int[Node.MAX_ROW][Node.MAX_COL];
+			for (int[] row: distances)
+				Arrays.fill(row, -1);
+			int distance = 0;
+			ArrayList<Coordinate> endpoints = new ArrayList<>();
+			System.err.print(goal.getX() + ", " + goal.getY() + "\n");
+			endpoints.add(goal);
+			while (!endpoints.isEmpty()) {
+				for (Coordinate endpoint : endpoints) {
+					distances[endpoint.getY()][endpoint.getX()] = distance;
+				}
+				distance++;
+				ArrayList<Coordinate> newEndpoints = getValidNeighbours(endpoints, distances);
+				endpoints.clear();
+				endpoints.addAll(newEndpoints);
+			}
+			goalDistances.add(new GoalDistanceMatrix(distances, goal.getValue()));
+		}
+		return goalDistances;
+	}
+
+	private ArrayList<Coordinate> getValidNeighbours(ArrayList<Coordinate> endpoints, int[][] distances) {
+		ArrayList<Coordinate> validNeighbours = new ArrayList<>();
+		for (Coordinate endpoint : endpoints) {
+			Coordinate[] neighbours = endpoint.getNeighbours();
+			for (Coordinate neighbour : neighbours) {
+				if (neighbour.getX() < Node.MAX_COL && neighbour.getY() < Node.MAX_ROW
+						&& neighbour.getX() >= 0 && neighbour.getY() >= 0) { // neighbour is inside map range
+					if (!Node.walls[neighbour.getY()][neighbour.getX()] &&
+						distances[neighbour.getY()][neighbour.getX()] == -1 &&
+						!validNeighbours.contains(neighbour)	) { // neighbour is not populated yet and not wall
+						validNeighbours.add(neighbour);
+					}
+				}
+			}
+		}
+		return validNeighbours;
+	}
 
 	@Override
 	public int compare(Node n1, Node n2) {
@@ -100,3 +161,4 @@ public abstract class Heuristic implements Comparator<Node> {
 		}
 	}
 }
+

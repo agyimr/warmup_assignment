@@ -72,3 +72,6 @@ To try out the included ruby random walk client (requires a ruby intepreter in y
    Windows: $ java -jar server.jar -l levels/MApacman.lvl -c "ruby sampleclients/random_agent.rb 3" -g -p
    Linux:   $ java -Dsun.java2d.opengl=true -jar server.jar -l levels/MApacman.lvl -c "ruby sampleclients/random_agent.rb 3" -g -p
 The argument passed to random_agent.rb is the number of agents on the level
+
+
+java -jar server.jar -l ../levels/friendofDFS.lvl -c "java -Xmx3g searchclient.SearchClient -greedy" -g

@@ -48,9 +48,9 @@ public class SearchClient {
 					agentFound = true;
 					this.initialState.agentRow = row;
 					this.initialState.agentCol = col;
-				} else if ('A' <= chr && chr <= 'Z') { // Box.
+				} else if (isBox(chr)) { // Box.
 					this.initialState.boxes[row][col] = chr;
-				} else if ('a' <= chr && chr <= 'z') { // Goal.
+				} else if (isGoal(chr)) { // Goal.
 					this.initialState.goals[row][col] = chr;
 				} else if (chr == ' ') {
 					// Free space.
@@ -60,6 +60,14 @@ public class SearchClient {
 				}
 			}
 		}
+	}
+
+	public static boolean isGoal(char chr) {
+		return ('a' <= chr && chr <= 'z');
+	}
+
+	public static boolean isBox(char chr) {
+		return ('A' <= chr && chr <= 'Z');
 	}
 
 	public LinkedList<Node> Search(Strategy strategy) throws IOException {

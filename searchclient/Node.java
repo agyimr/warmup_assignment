@@ -172,8 +172,6 @@ public class Node {
 			result = prime * result + this.agentCol;
 			result = prime * result + this.agentRow;
 			result = prime * result + Arrays.deepHashCode(this.boxes);
-			result = prime * result + Arrays.deepHashCode(Node.goals);
-			result = prime * result + Arrays.deepHashCode(Node.walls);
 			this._hash = result;
 		}
 		return this._hash;
