@@ -9,9 +9,9 @@ import static java.lang.Math.abs;
 
 public abstract class Heuristic implements Comparator<Node> {
 	private ArrayList<Point> Goals = new ArrayList<>();
-
-    private int[][][] GoalsBoard;
-    private int agentDistanceMap[][][][];
+    private static final char WALL = 0xFF;
+    private char[][][] GoalsBoard;
+    private char agentDistanceMap[][][][];
     public Heuristic(Node initialState) {
         for(int row = 0; row < Node.MAX_ROW; ++row) {
             for (int column = 0; column < Node.MAX_COL; ++column) {
@@ -21,25 +21,25 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
-        GoalsBoard = new int [Goals.size()][Node.MAX_ROW][Node.MAX_COL];
+        GoalsBoard = new char[Goals.size()][Node.MAX_ROW][Node.MAX_COL];
         for(int currentGoal = 0; currentGoal < Goals.size(); ++currentGoal) {
             populateDistanceBoard(GoalsBoard[currentGoal], Goals.get(currentGoal));
         }
-        agentDistanceMap = new int[Node.MAX_ROW][Node.MAX_COL][Node.MAX_ROW][Node.MAX_COL];
+        agentDistanceMap = new char[Node.MAX_ROW][Node.MAX_COL][Node.MAX_ROW][Node.MAX_COL];
         for(int row = 1; row < agentDistanceMap.length - 1; ++row) {//assuming walls are surrounding the map
             for (int column = 1; column < agentDistanceMap[row].length - 1; ++column) {
                 populateDistanceBoard(agentDistanceMap[row][column], new Point(column,row));
             }
         }
     }
-    private void populateDistanceBoard(int board [][], Point location) {
+    private void populateDistanceBoard(char board [][], Point location) {
         //setting appropriate values to recognize visited cells
         for(int row = 0; row < board.length; ++row) {
             for (int column = 0; column < board[row].length; ++column) {
-                board[row][column] = -1;
+                board[row][column] = WALL;
             }
         }
-        int distanceFromGoal = 0;
+        char distanceFromGoal = 0;
         board[location.y][location.x] = distanceFromGoal;
         //Find Neighbours until you got them all
         ArrayList<Point> possibleNeighbours = FindNeighbours(location, board);
@@ -47,13 +47,15 @@ public abstract class Heuristic implements Comparator<Node> {
             ++distanceFromGoal;
             ArrayList<Point> newNeighbours = new ArrayList<>();
             for(Point Neighbour : possibleNeighbours) {
-                board[Neighbour.y][Neighbour.x] = distanceFromGoal;
+                if(board[Neighbour.y][Neighbour.x] > distanceFromGoal)
+                    board[Neighbour.y][Neighbour.x] = distanceFromGoal;
                 newNeighbours.addAll(FindNeighbours(Neighbour, board));
             }
+            possibleNeighbours.clear();
             possibleNeighbours = newNeighbours;
         }
     }
-    private ArrayList<Point> FindNeighbours(Point Home, int board[][]) {
+    private ArrayList<Point> FindNeighbours(Point Home, char board[][]) {
         ArrayList<Point> possibleNeighbour = new ArrayList<>();
         findNeighbour(Home.x, Home.y + 1, board, possibleNeighbour);
         findNeighbour(Home.x, Home.y - 1, board, possibleNeighbour);
@@ -61,9 +63,9 @@ public abstract class Heuristic implements Comparator<Node> {
         findNeighbour(Home.x + 1, Home.y, board, possibleNeighbour);
         return  possibleNeighbour;
     }
-    private void findNeighbour(int x, int y, int board[][], ArrayList<Point> possibleNeighbour) {
+    private void findNeighbour(int x, int y, char board[][], ArrayList<Point> possibleNeighbour) {
         if(x >= Node.MAX_COL || y >= Node.MAX_ROW) return;
-        if( !Node.walls[y][x] && (board[y][x] == -1)) possibleNeighbour.add(new Point( x, y ));
+        if( !Node.walls[y][x] && (board[y][x] == WALL)) possibleNeighbour.add(new Point( x, y ));
     }
 
     void printBoard(int board[][]) {
@@ -93,7 +95,7 @@ public abstract class Heuristic implements Comparator<Node> {
         }
         return totalHeuristic / 2 + shortestAgentBoxGoalDistance;
 	}
-	int[] getHeuristicDistance(int row, int column, Node n, int playerDistanceMap[][]) {
+	int[] getHeuristicDistance(int row, int column, Node n, char playerDistanceMap[][]) {
         int heuristicDistance = 0;
         int closestBoxPlayerGoalRoute = Integer.MAX_VALUE;
         for (int currentGoal = 0; currentGoal < Goals.size(); ++currentGoal) {
