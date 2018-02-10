@@ -26,12 +26,12 @@ public abstract class Heuristic implements Comparator<Node> {
         for(int currentGoal = 0; currentGoal < Goals.size(); ++currentGoal) {
             populateDistanceBoard(GoalsBoard[currentGoal], Goals.get(currentGoal));
         }
-        agentDistanceMap = new char[Node.MAX_ROW][Node.MAX_COL][Node.MAX_ROW][Node.MAX_COL];
-        for(int row = 1; row < agentDistanceMap.length - 1; ++row) {//assuming walls are surrounding the map
-            for (int column = 1; column < agentDistanceMap[row].length - 1; ++column) {
-                if(!Node.walls[row][column]) populateDistanceBoard(agentDistanceMap[row][column], new Point(column,row));
-            }
-        }
+//        agentDistanceMap = new char[Node.MAX_ROW][Node.MAX_COL][Node.MAX_ROW][Node.MAX_COL];
+//        for(int row = 1; row < agentDistanceMap.length - 1; ++row) {//assuming walls are surrounding the map
+//            for (int column = 1; column < agentDistanceMap[row].length - 1; ++column) {
+//                if(!Node.walls[row][column]) populateDistanceBoard(agentDistanceMap[row][column], new Point(column,row));
+//            }
+//        }
     }
     private void populateDistanceBoard(char board [][], Point location) {
         //setting appropriate values to recognize visited cells
@@ -86,26 +86,29 @@ public abstract class Heuristic implements Comparator<Node> {
         int totalHeuristic = 0;
         for(int row = 0; row < Node.MAX_ROW; ++row) {
             for (int column = 0; column < Node.MAX_COL; ++column) {
-                if((Character.toLowerCase(n.boxes[row][column]) != Node.goals[row][column]) && (n.boxes[row][column] > 0)) {
-                    int []currentHeuristic = getHeuristicDistance(row, column, n, agentDistanceMap[n.agentRow][n.agentCol]); //selecting current Agent position
-                    if(currentHeuristic[1] < shortestAgentBoxGoalDistance) shortestAgentBoxGoalDistance = currentHeuristic[1];
-                    totalHeuristic +=  currentHeuristic[0];
-                }
-                else {
-                    shortestAgentBoxGoalDistance = 0;
+                if((n.boxes[row][column] > 0)) {
+                    if((Character.toLowerCase(n.boxes[row][column]) != Node.goals[row][column])) {
+                        int []currentHeuristic = getHeuristicDistance(row, column, n); //selecting current Agent position
+                        if(currentHeuristic[1] < shortestAgentBoxGoalDistance) shortestAgentBoxGoalDistance = currentHeuristic[1];
+                        totalHeuristic +=  currentHeuristic[0];
+                    }
+                    else {
+                        shortestAgentBoxGoalDistance = 0;
+                    }
                 }
             }
         }
         return totalHeuristic / 2 + shortestAgentBoxGoalDistance;
 	}
-	int[] getHeuristicDistance(int row, int column, Node n, char playerDistanceMap[][]) {
+	int[] getHeuristicDistance(int row, int column, Node n) {
         int heuristicDistance = 0;
         int closestBoxPlayerGoalRoute = Integer.MAX_VALUE;
         for (int currentGoal = 0; currentGoal < Goals.size(); ++currentGoal) {
             if(Character.toLowerCase(n.boxes[row][column]) == Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x]) {
-                int playerToBoxDistance = playerDistanceMap[row][column];
+                int playerToBoxDistance = ManhattanDistane(n.agentCol, n.agentRow, column, row);
+                char playerToGoalDistance = GoalsBoard[currentGoal][n.agentRow][n.agentCol];
                 int boxToGoalDistance = GoalsBoard[currentGoal][row][column];
-                int boxPlayerGoalRoute = boxToGoalDistance + playerToBoxDistance;
+                int boxPlayerGoalRoute = boxToGoalDistance + playerToBoxDistance + playerToGoalDistance;
                 heuristicDistance += boxToGoalDistance;
                 if (closestBoxPlayerGoalRoute > boxPlayerGoalRoute) {
                     closestBoxPlayerGoalRoute = boxPlayerGoalRoute;
@@ -117,7 +120,9 @@ public abstract class Heuristic implements Comparator<Node> {
         heuristics[1] = closestBoxPlayerGoalRoute;
         return heuristics;
     }
-
+    int ManhattanDistane(int x1, int y1, int x2, int y2) {
+        return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+    }
 	public abstract int f(Node n);
 
 	@Override
