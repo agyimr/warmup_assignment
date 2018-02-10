@@ -29,7 +29,7 @@ public abstract class Heuristic implements Comparator<Node> {
         agentDistanceMap = new char[Node.MAX_ROW][Node.MAX_COL][Node.MAX_ROW][Node.MAX_COL];
         for(int row = 1; row < agentDistanceMap.length - 1; ++row) {//assuming walls are surrounding the map
             for (int column = 1; column < agentDistanceMap[row].length - 1; ++column) {
-                populateDistanceBoard(agentDistanceMap[row][column], new Point(column,row));
+                if(!Node.walls[row][column]) populateDistanceBoard(agentDistanceMap[row][column], new Point(column,row));
             }
         }
     }
@@ -53,7 +53,6 @@ public abstract class Heuristic implements Comparator<Node> {
             possibleNeighbours = null;
             System.gc();
             possibleNeighbours = newNeighbours;
-            //System.err.println(possibleNeighbours.size() + "  newNeighbours:  " + newNeighbours.size() + "  Distance:  " + distanceFromGoal);
         }
     }
     private ArrayList<Point> FindNeighbours(Point Home, char board[][], char distance) {
