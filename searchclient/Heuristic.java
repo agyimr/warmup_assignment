@@ -82,27 +82,32 @@ public abstract class Heuristic implements Comparator<Node> {
         System.err.println();
     }
 	public int h(Node n) {
-        int shortestAgentBoxGoalDistance = Integer.MAX_VALUE;
+        int shortestBoxGoalDistance = Integer.MAX_VALUE;
+        int playerToShortestBoxDistance = 0;
         int totalHeuristic = 0;
         for(int row = 0; row < Node.MAX_ROW; ++row) {
             for (int column = 0; column < Node.MAX_COL; ++column) {
                 if((n.boxes[row][column] > 0)) {
                     if((Character.toLowerCase(n.boxes[row][column]) != Node.goals[row][column])) {
-                        int []currentHeuristic = getHeuristicDistance(row, column, n); //selecting current Agent position
-                        if(currentHeuristic[1] < shortestAgentBoxGoalDistance) shortestAgentBoxGoalDistance = currentHeuristic[1];
+                        int currentHeuristic[] = getHeuristicDistance(row, column, n);
+                        if(currentHeuristic[1] < shortestBoxGoalDistance) {
+                            shortestBoxGoalDistance = currentHeuristic[1];
+                            playerToShortestBoxDistance = currentHeuristic[2];
+                        }
                         totalHeuristic +=  currentHeuristic[0];
                     }
                     else {
-                        shortestAgentBoxGoalDistance = 0;
+                        shortestBoxGoalDistance = 0;
                     }
                 }
             }
         }
-        return totalHeuristic / 2 + shortestAgentBoxGoalDistance;
+        return totalHeuristic * 10 + playerToShortestBoxDistance;
 	}
 	int[] getHeuristicDistance(int row, int column, Node n) {
         int heuristicDistance = 0;
-        int closestBoxPlayerGoalRoute = Integer.MAX_VALUE;
+        int closestBoxGoalRoute = Integer.MAX_VALUE;
+        int PlayerToClosestBox = 0;
         for (int currentGoal = 0; currentGoal < Goals.size(); ++currentGoal) {
             if(Character.toLowerCase(n.boxes[row][column]) == Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x]) {
                 int playerToBoxDistance = ManhattanDistane(n.agentCol, n.agentRow, column, row);
@@ -110,14 +115,16 @@ public abstract class Heuristic implements Comparator<Node> {
                 int boxToGoalDistance = GoalsBoard[currentGoal][row][column];
                 int boxPlayerGoalRoute = boxToGoalDistance + playerToBoxDistance + playerToGoalDistance;
                 heuristicDistance += boxToGoalDistance;
-                if (closestBoxPlayerGoalRoute > boxPlayerGoalRoute) {
-                    closestBoxPlayerGoalRoute = boxPlayerGoalRoute;
+                if (closestBoxGoalRoute > boxPlayerGoalRoute) {
+                    closestBoxGoalRoute = boxPlayerGoalRoute;
+                    PlayerToClosestBox = playerToBoxDistance;
                 }
             }
         }
-        int heuristics[] = new int[2];
+        int heuristics[] = new int[3];
         heuristics[0] = heuristicDistance;
-        heuristics[1] = closestBoxPlayerGoalRoute;
+        heuristics[1] = closestBoxGoalRoute;
+        heuristics[2] = PlayerToClosestBox;
         return heuristics;
     }
     int ManhattanDistane(int x1, int y1, int x2, int y2) {
