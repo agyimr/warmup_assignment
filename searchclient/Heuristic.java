@@ -10,6 +10,7 @@ import static java.lang.Math.abs;
 public abstract class Heuristic implements Comparator<Node> {
 	private ArrayList<Point> Goals = new ArrayList<>();
     private static final char WALL = 0xFF;
+    private static final char TAKEN = 0x0;
     private char[][][] GoalsBoard;
     private char agentDistanceMap[][][][];
     public Heuristic(Node initialState) {
@@ -42,30 +43,33 @@ public abstract class Heuristic implements Comparator<Node> {
         char distanceFromGoal = 0;
         board[location.y][location.x] = distanceFromGoal;
         //Find Neighbours until you got them all
-        ArrayList<Point> possibleNeighbours = FindNeighbours(location, board);
+        ArrayList<Point> possibleNeighbours = FindNeighbours(location, board, ++distanceFromGoal);
         while (!possibleNeighbours.isEmpty()) {
             ++distanceFromGoal;
             ArrayList<Point> newNeighbours = new ArrayList<>();
-            for(Point Neighbour : possibleNeighbours) {
-                if(board[Neighbour.y][Neighbour.x] > distanceFromGoal)
-                    board[Neighbour.y][Neighbour.x] = distanceFromGoal;
-                newNeighbours.addAll(FindNeighbours(Neighbour, board));
+            for(int Neighbour =0; Neighbour < possibleNeighbours.size(); ++Neighbour) {
+                newNeighbours.addAll(FindNeighbours(possibleNeighbours.get(Neighbour), board, distanceFromGoal));
             }
-            possibleNeighbours.clear();
+            possibleNeighbours = null;
+            System.gc();
             possibleNeighbours = newNeighbours;
+            //System.err.println(possibleNeighbours.size() + "  newNeighbours:  " + newNeighbours.size() + "  Distance:  " + distanceFromGoal);
         }
     }
-    private ArrayList<Point> FindNeighbours(Point Home, char board[][]) {
+    private ArrayList<Point> FindNeighbours(Point Home, char board[][], char distance) {
         ArrayList<Point> possibleNeighbour = new ArrayList<>();
-        findNeighbour(Home.x, Home.y + 1, board, possibleNeighbour);
-        findNeighbour(Home.x, Home.y - 1, board, possibleNeighbour);
-        findNeighbour(Home.x - 1, Home.y, board, possibleNeighbour);
-        findNeighbour(Home.x + 1, Home.y, board, possibleNeighbour);
+        findNeighbour(Home.x, Home.y + 1, board, possibleNeighbour, distance);
+        findNeighbour(Home.x, Home.y - 1, board, possibleNeighbour, distance);
+        findNeighbour(Home.x - 1, Home.y, board, possibleNeighbour, distance);
+        findNeighbour(Home.x + 1, Home.y, board, possibleNeighbour, distance);
         return  possibleNeighbour;
     }
-    private void findNeighbour(int x, int y, char board[][], ArrayList<Point> possibleNeighbour) {
+    private void findNeighbour(int x, int y, char board[][], ArrayList<Point> possibleNeighbour, char distance) {
         if(x >= Node.MAX_COL || y >= Node.MAX_ROW) return;
-        if( !Node.walls[y][x] && (board[y][x] == WALL)) possibleNeighbour.add(new Point( x, y ));
+        if( !Node.walls[y][x] && (board[y][x] == WALL)) {
+            board[y][x] = distance;
+            possibleNeighbour.add(new Point( x, y ));
+        }
     }
 
     void printBoard(int board[][]) {
