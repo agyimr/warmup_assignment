@@ -32,14 +32,13 @@ public class SearchClient {
 
         this.initialState = new Node(null, rowNumber, maxCol);
 		boolean agentFound = false;
-
         for (int row = 0; row < rowNumber; row++) {
             line = table.get(row);
 			for (int col = 0; col < line.length(); col++) {
 				char chr = line.charAt(col);
 
 				if (chr == '+') { // Wall.
-					this.initialState.walls[row][col] = true;
+					Node.walls[row][col] = true;
 				} else if ('0' <= chr && chr <= '9') { // Agent.
 					if (agentFound) {
 						System.err.println("Error, not a single agent level");
@@ -51,7 +50,7 @@ public class SearchClient {
 				} else if ('A' <= chr && chr <= 'Z') { // Box.
 					this.initialState.boxes[row][col] = chr;
 				} else if ('a' <= chr && chr <= 'z') { // Goal.
-					this.initialState.goals[row][col] = chr;
+					Node.goals[row][col] = chr;
 				} else if (chr == ' ') {
 					// Free space.
 				} else {

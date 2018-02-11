@@ -41,6 +41,7 @@ public abstract class Heuristic implements Comparator<Node> {
             possibleNeighbours = newNeighbours;
         }
     }
+
     private ArrayList<Point> FindNeighbours(Point Home, short board[][], short distance) {
         ArrayList<Point> possibleNeighbour = new ArrayList<>();
         findNeighbour(Home.x, Home.y + 1, board, possibleNeighbour, distance);
@@ -49,6 +50,7 @@ public abstract class Heuristic implements Comparator<Node> {
         findNeighbour(Home.x + 1, Home.y, board, possibleNeighbour, distance);
         return  possibleNeighbour;
     }
+
     private void findNeighbour(int x, int y, short board[][], ArrayList<Point> possibleNeighbour, short distance) {
         if(x >= Node.MAX_COL || y >= Node.MAX_ROW) return;
         if( !Node.walls[y][x] && (board[y][x] == WALL)) {
@@ -57,6 +59,7 @@ public abstract class Heuristic implements Comparator<Node> {
         }
     }
 
+    //strictly for testing purposes
     void printBoard(short board[][]) {
         System.err.println();
         for(int row = 0; row < Node.MAX_ROW; ++row) {
@@ -68,24 +71,22 @@ public abstract class Heuristic implements Comparator<Node> {
         }
         System.err.println();
     }
+
 	public int h(Node n) {
         int result = 0;
-        // Basically the sum of all of the shortest path distances for every box to a goal
         int closestBoxToGoal = Integer.MAX_VALUE;
         int closestBoxToAgent = 0;
-        for (int row = 0; row < n.boxes.length; row++) {        // i: row
-            for (int col = 0; col < n.boxes[row].length; col++) { // j: column
+        for (int row = 0; row < n.boxes.length; row++) {
+            for (int col = 0; col < n.boxes[row].length; col++) {
                 char currentBoxGoal = Character.toLowerCase(n.boxes[row][col]);
-                if ((n.boxes[row][col] > 0) && ((Node.goals[row][col]) != currentBoxGoal)) {
+                if ((n.boxes[row][col] > 0) && ((Node.goals[row][col]) != currentBoxGoal)) { // is box already at goal?
                     for (int currentGoal = 0; currentGoal<GoalsBoard.length; ++currentGoal) {
-                        if (Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x] == currentBoxGoal &&
-                                n.boxes[Goals.get(currentGoal).y][Goals.get(currentGoal).x] != n.boxes[row][col]) {
-                            result += GoalsBoard[currentGoal][row][col] * GoalsBoard.length;
+                        if (Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x] == currentBoxGoal && // is the goal value equal to the box value?
+                                n.boxes[Goals.get(currentGoal).y][Goals.get(currentGoal).x] != n.boxes[row][col]) { // is the goal already taken by other box?
+                            result += GoalsBoard[currentGoal][row][col]; //add the distance to heuristic
                             int boxToAgent = ManhattanDistane(n.agentCol, n.agentRow, col, row );
                             int BoxToGoal =   GoalsBoard[currentGoal][row][col];
-                            //int AgentToGoal = GoalsBoard[currentGoal][row][col];
-							//int overallDistance = boxToAgent + BoxToGoal + AgentToGoal;
-                            if (closestBoxToGoal > BoxToGoal) {
+                            if (closestBoxToGoal > BoxToGoal) { //find the closest box to goal
                                 closestBoxToGoal = BoxToGoal;
                                 closestBoxToAgent = boxToAgent;
                             }
@@ -94,7 +95,8 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
-        result += closestBoxToAgent;
+        result *= GoalsBoard.length; // multiplication to enhance decision-making in multi-goal levels
+        result += closestBoxToAgent; // go to the closest box!
         return result;
 	}
 

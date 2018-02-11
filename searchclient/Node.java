@@ -50,14 +50,14 @@ public class Node {
 	}
 
     public Node(Node parent, int maxRow, int maxCol) {
-	    MAX_ROW = maxRow;
-	    MAX_COL = maxCol;
-        walls = new boolean[MAX_ROW][MAX_COL];
-        boxes = new char[MAX_ROW][MAX_COL];
-        goals = new char[MAX_ROW][MAX_COL];
         this.parent = parent;
-        if (parent == null) {
-            this.g = 0;
+		if (parent == null) {
+			MAX_ROW = maxRow;
+			MAX_COL = maxCol;
+			walls = new boolean[MAX_ROW][MAX_COL];
+			boxes = new char[MAX_ROW][MAX_COL];
+			goals = new char[MAX_ROW][MAX_COL];
+			this.g = 0;
         } else {
             this.g = parent.g() + 1;
         }
