@@ -40,8 +40,7 @@ public abstract class Heuristic implements Comparator<Node> {
                 newNeighbours.addAll(FindNeighbours(possibleNeighbours.get(Neighbour), board, distanceFromGoal));
             }
             possibleNeighbours .clear();
-            System.gc();
-            possibleNeighbours = newNeighbours;
+            possibleNeighbours.addAll(newNeighbours);
         }
     }
     private ArrayList<Point> FindNeighbours(Point Home, short board[][], short distance) {
@@ -81,14 +80,14 @@ public abstract class Heuristic implements Comparator<Node> {
                 char currentBoxGoal = Character.toLowerCase(n.boxes[row][col]);
                 if ((n.boxes[row][col] > 0) && ((Node.goals[row][col]) != currentBoxGoal)) {
                     for (int currentGoal = 0; currentGoal<GoalsBoard.length; ++currentGoal) {
-                        if (Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x] == currentBoxGoal) {
+                        if (Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x] == currentBoxGoal && n.boxes[Goals.get(currentGoal).y][Goals.get(currentGoal).x] != n.boxes[row][col]) {
                             result += GoalsBoard[currentGoal][row][col] * 10;
                             int boxToAgent = ManhattanDistane(n.agentCol, n.agentRow, col, row );
-                            int BoxToGoal = GoalsBoard[currentGoal][row][col];
-                            int AgentToGoal = GoalsBoard[currentGoal][row][col];
-                            int overallDistance = boxToAgent + BoxToGoal + AgentToGoal;
-                            if (closestBoxToGoal > overallDistance) {
-                                closestBoxToGoal = overallDistance;
+                            int BoxToGoal =   GoalsBoard[currentGoal][row][col];
+                            //int AgentToGoal = GoalsBoard[currentGoal][row][col];
+							//int overallDistance = boxToAgent + BoxToGoal + AgentToGoal;
+                            if (closestBoxToGoal > BoxToGoal) {
+                                closestBoxToGoal = BoxToGoal;
                                 closestBoxToAgent = boxToAgent;
                             }
                         }
