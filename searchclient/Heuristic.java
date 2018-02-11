@@ -15,7 +15,6 @@ public abstract class Heuristic implements Comparator<Node> {
             for (int column = 0; column < Node.MAX_COL; ++column) {
                  if(Node.goals[row][column] > 0) {
                     Goals.add(new Point(column, row));
-
                 }
             }
         }
@@ -39,8 +38,7 @@ public abstract class Heuristic implements Comparator<Node> {
             for(int Neighbour =0; Neighbour < possibleNeighbours.size(); ++Neighbour) {
                 newNeighbours.addAll(FindNeighbours(possibleNeighbours.get(Neighbour), board, distanceFromGoal));
             }
-            possibleNeighbours .clear();
-            possibleNeighbours.addAll(newNeighbours);
+            possibleNeighbours = newNeighbours;
         }
     }
     private ArrayList<Point> FindNeighbours(Point Home, short board[][], short distance) {
@@ -80,8 +78,9 @@ public abstract class Heuristic implements Comparator<Node> {
                 char currentBoxGoal = Character.toLowerCase(n.boxes[row][col]);
                 if ((n.boxes[row][col] > 0) && ((Node.goals[row][col]) != currentBoxGoal)) {
                     for (int currentGoal = 0; currentGoal<GoalsBoard.length; ++currentGoal) {
-                        if (Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x] == currentBoxGoal && n.boxes[Goals.get(currentGoal).y][Goals.get(currentGoal).x] != n.boxes[row][col]) {
-                            result += GoalsBoard[currentGoal][row][col] * 10;
+                        if (Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x] == currentBoxGoal &&
+                                n.boxes[Goals.get(currentGoal).y][Goals.get(currentGoal).x] != n.boxes[row][col]) {
+                            result += GoalsBoard[currentGoal][row][col] * GoalsBoard.length;
                             int boxToAgent = ManhattanDistane(n.agentCol, n.agentRow, col, row );
                             int BoxToGoal =   GoalsBoard[currentGoal][row][col];
                             //int AgentToGoal = GoalsBoard[currentGoal][row][col];
