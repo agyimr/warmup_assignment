@@ -84,8 +84,11 @@ public abstract class Heuristic implements Comparator<Node> {
                         if (Node.goals[Goals.get(currentGoal).y][Goals.get(currentGoal).x] == currentBoxGoal) {
                             result += GoalsBoard[currentGoal][row][col] * 10;
                             int boxToAgent = ManhattanDistane(n.agentCol, n.agentRow, col, row );
-                            if (closestBoxToGoal > GoalsBoard[currentGoal][row][col]) {
-                                closestBoxToGoal = GoalsBoard[currentGoal][row][col];
+                            int BoxToGoal = GoalsBoard[currentGoal][row][col];
+                            int AgentToGoal = GoalsBoard[currentGoal][row][col];
+                            int overallDistance = boxToAgent + BoxToGoal + AgentToGoal;
+                            if (closestBoxToGoal > overallDistance) {
+                                closestBoxToGoal = overallDistance;
                                 closestBoxToAgent = boxToAgent;
                             }
                         }
